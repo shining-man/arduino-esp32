@@ -43,6 +43,9 @@ protected:
     std::shared_ptr<WiFiClientRxBuffer> _rxBuffer;
     bool _connected;
     int _timeout;
+    
+    int _timeout_WIFI_CLIENT_MAX_WRITE_RETRY = 10;
+    uint32_t _timeout_WIFI_CLIENT_SELECT_TIMEOUT_US = 1000000;
 
 public:
     WiFiClient *next;
@@ -93,6 +96,7 @@ public:
     int setTimeout(uint32_t seconds);
     int setNoDelay(bool nodelay);
     bool getNoDelay();
+    void setClientSelectTimeout(uint32_t timeout, int retry);
 
     IPAddress remoteIP() const;
     IPAddress remoteIP(int fd) const;

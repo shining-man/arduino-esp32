@@ -24,8 +24,6 @@
 #include <errno.h>
 
 #define WIFI_CLIENT_DEF_CONN_TIMEOUT_MS  (3000)
-#define WIFI_CLIENT_MAX_WRITE_RETRY      (10)
-#define WIFI_CLIENT_SELECT_TIMEOUT_US    (1000000)
 #define WIFI_CLIENT_FLUSH_BUFFER_SIZE    (1024)
 
 #undef connect
@@ -389,7 +387,7 @@ int WiFiClient::read()
 size_t WiFiClient::write(const uint8_t *buf, size_t size)
 {
     int res =0;
-    int retry = WIFI_CLIENT_MAX_WRITE_RETRY;
+    int retry = _timeout_WIFI_CLIENT_MAX_WRITE_RETRY;
     int socketFileDescriptor = fd();
     size_t totalBytesSent = 0;
     size_t bytesRemaining = size;
@@ -405,7 +403,7 @@ size_t WiFiClient::write(const uint8_t *buf, size_t size)
         FD_ZERO(&set);        // empties the set
         FD_SET(socketFileDescriptor, &set); // adds FD to the set
         tv.tv_sec = 0;
-        tv.tv_usec = WIFI_CLIENT_SELECT_TIMEOUT_US;
+        tv.tv_usec = _timeout_WIFI_CLIENT_SELECT_TIMEOUT_US;
         retry--;
 
         if(select(socketFileDescriptor + 1, NULL, &set, NULL, &tv) < 0) {
@@ -422,7 +420,7 @@ size_t WiFiClient::write(const uint8_t *buf, size_t size)
                 } else {
                     buf += res;
                     bytesRemaining -= res;
-                    retry = WIFI_CLIENT_MAX_WRITE_RETRY;
+                    retry = _timeout_WIFI_CLIENT_MAX_WRITE_RETRY;
                 }
             }
             else if(res < 0) {
@@ -616,4 +614,11 @@ int WiFiClient::fd() const
         return clientSocketHandle->fd();
     }
 }
+
+void WiFiClient::setClientSelectTimeout(uint32_t timeout, int retry)
+{
+    _timeout_WIFI_CLIENT_MAX_WRITE_RETRY = retry;
+    _timeout_WIFI_CLIENT_SELECT_TIMEOUT_US = timeout;
+}
+
 
